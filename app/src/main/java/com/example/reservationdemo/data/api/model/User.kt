@@ -1,13 +1,17 @@
 package com.example.reservationdemo.data.api.model
 
+import com.google.gson.annotations.SerializedName
+
 data class User(
+    @SerializedName("_id")
     val id: String? = null,
     val name: String? = null,
-    val email: String,
+    val email: String? = null,
     val phone: String? = null,
     val address: String? = null,
     val avata: String? = null,
-    val createdAt: String? = null
+    val createdAt: String? = null,
+    val favorite: UserFavorite? = null,
 )
 
 data class RegisterResponse(
@@ -28,7 +32,10 @@ data class LoginRequest(
     val email: String,
     val password: String
 )
-
+data class UserFavorite(
+    val business: List<String>? = null,
+    val individual: List<String>? = null,
+)
 data class RegisterRequest(
     val name: String?,
     val email: String,

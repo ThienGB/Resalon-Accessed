@@ -1,5 +1,6 @@
 package com.example.reservationdemo.ui.permission
 
+import android.annotation.SuppressLint
 import android.location.Geocoder
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -45,106 +46,30 @@ import java.util.Locale
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun LocationPermissionScreen(
-    modifier: Modifier = Modifier,
-    fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(LocalContext.current),
-    onLocationReceived: (String) -> Unit = {}
+    onPermissionGranted: () -> Unit = {},
+    onPermissionDenied: () -> Unit = {}
 ) {
-    val context = LocalContext.current
     val locationPermission = rememberPermissionState(permission = android.Manifest.permission.ACCESS_FINE_LOCATION)
 
-    var locationText by remember { mutableStateOf("Chưa có dữ liệu vị trí") }
-    var isLoading by remember { mutableStateOf(false) }
+    LaunchedEffect(locationPermission.status) {
+        when {
+            locationPermission.status.isGranted -> {
+                onPermissionGranted()
+            }
 
-    // Gửi yêu cầu khi lần đầu
-    LaunchedEffect(Unit) {
-        locationPermission.launchPermissionRequest()
-    }
+            locationPermission.status.shouldShowRationale -> {
+                // Người dùng từ chối nhưng có thể yêu cầu lại
+                onPermissionDenied()
+            }
 
-    // Giao diện
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color(0xFF154B51))
-            .padding(24.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
-            elevation = CardDefaults.cardElevation(8.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Vị trí hiện tại",
-                    style = MaterialTheme.typography.headlineSmall.copy(color = Color(0xFF154B51)),
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                when {
-                    locationPermission.status.isGranted -> {
-                        Button(
-                            onClick = {
-                                isLoading = true
-                                fusedLocationClient.lastLocation
-                                    .addOnSuccessListener { location ->
-                                        isLoading = false
-                                        if (location != null) {
-                                            CoroutineScope(Dispatchers.IO).launch {
-                                                try {
-                                                    val geocoder = Geocoder(context, Locale.getDefault())
-                                                    val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
-                                                    val city = if (!addresses.isNullOrEmpty()) {
-                                                        addresses[0].locality ?: addresses[0].adminArea ?: "City unknown"
-                                                    } else {
-                                                        "City unknown"
-                                                    }
-                                                    withContext(Dispatchers.Main) {
-                                                        onLocationReceived(city)
-                                                    }
-                                                } catch (e: IOException) {
-                                                    withContext(Dispatchers.Main) {
-
-                                                    }
-                                                }
-                                            }
-                                        } else {
-                                            locationText = "Không lấy được vị trí."
-                                        }
-                                    }
-                                    .addOnFailureListener {
-                                        isLoading = false
-                                        locationText = "Lỗi khi lấy vị trí: ${it.message}"
-                                    }
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF154B51))
-                        ) {
-                            Text("Lấy vị trí", color = Color.White)
-                        }
-
-                        if (isLoading) {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            CircularProgressIndicator(color = Color(0xFF154B51))
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(text = locationText)
-                    }
-
-                    locationPermission.status.shouldShowRationale -> {
-                        Text("Ứng dụng cần quyền vị trí để hoạt động.", color = Color.Red)
-                    }
-
-                    else -> {
-                        Text("Quyền vị trí chưa được cấp hoặc bị từ chối.", color = Color.Red)
-                    }
-                }
+            !locationPermission.status.isGranted && !locationPermission.status.shouldShowRationale -> {
+                // Người dùng từ chối và chọn "Don't ask again" hoặc chưa cấp lần nào
+                onPermissionDenied()
             }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        locationPermission.launchPermissionRequest()
     }
 }

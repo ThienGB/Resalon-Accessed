@@ -66,18 +66,15 @@ import kotlin.math.absoluteValue
 fun OnBoarding(
     navController: NavController = NavController(LocalContext.current),
 ) {
-    val pagerState = rememberPagerState(pageCount = { 4 }) // 4 pages for 4 images
+    val pagerState = rememberPagerState(pageCount = { 4 })
     val onboardingImages = listOf(
-        R.drawable.on_boarding_1, // Replace with your image resources
+        R.drawable.on_boarding_1,
         R.drawable.on_boarding_2,
         R.drawable.on_boarding_3,
         R.drawable.on_boarding_4
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column {
-            Text(text = "Hello",)
-        }
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(),

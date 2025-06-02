@@ -2,16 +2,14 @@ package com.example.reservationdemo.ui.module.login
 
 import android.content.Context
 import android.util.Base64
-import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.reservationdemo.data.api.RetrofitClient
-import com.example.reservationdemo.data.api.model.LoginRequest
 import com.example.reservationdemo.data.api.model.LoginResponse
 import com.example.reservationdemo.data.api.model.RegisterRequest
 import com.example.reservationdemo.data.api.model.RegisterResponse
+import com.example.reservationdemo.data.local.store.AppPreferences
 import com.example.reservationdemo.data.local.store.UserPreferences
-import com.example.reservationdemo.data.local.store.dataStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -30,7 +28,9 @@ class LoginViewModel(
     val isLoading: StateFlow<Boolean> = _isLoading
 
     private val userPrefs = UserPreferences(context)
+    private val appPrefs = AppPreferences(context)
 
+    val isFirst = appPrefs.isFirst
     val userToken = userPrefs.userToken
     val userId = userPrefs.userId
 
@@ -70,6 +70,11 @@ class LoginViewModel(
             _registerResult.value = RegisterResponse()
         }
     }
+    fun clearLogin() {
+        viewModelScope.launch {
+            _loginResult.value = LoginResponse()
+        }
+    }
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
@@ -77,11 +82,12 @@ class LoginViewModel(
             try {
                 val response = RetrofitClient.apiService.login(email, password)
                 _loginResult.value = response
+                appPrefs.saveAppState(false)
             } catch (e: Exception) {
                 e.printStackTrace()
                 _loginResult.value = LoginResponse(
-                    errcode = -1,
-                    message = e.message ?: "Unknown error"
+                    status = 400,
+                    message = "Wrong email or password"
                 )
             } finally {
                 _isLoading.value = false

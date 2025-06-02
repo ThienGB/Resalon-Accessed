@@ -8,6 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,8 +38,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -67,6 +70,7 @@ fun LoginUI(
     val loginResult by viewModel.loginResult.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState(false)
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     var errorMessage by remember { mutableStateOf("") }
     fun setErrorMessage(message: String) {
         errorMessage = message
@@ -108,8 +112,9 @@ fun LoginUI(
             val token = loginResult.access_token ?: ""
             val userId = loginResult.user?.name ?: ""
             viewModel.saveLoginInfo(token, userId)
-        } else if (loginResult.status == 200) {
-            Toast.makeText(context, "Wrong email or password", Toast.LENGTH_SHORT).show()
+        } else if (loginResult.status == 400) {
+            Toast.makeText(context, "Wronvg email or password", Toast.LENGTH_SHORT).show()
+            viewModel.clearLogin()
         }
     }
     if (isLoading) {
@@ -119,7 +124,12 @@ fun LoginUI(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                })
+            },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(

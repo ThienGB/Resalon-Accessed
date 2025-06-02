@@ -36,9 +36,7 @@ fun LoadingScreen() {
     }
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .graphicsLayer(alpha = 0.2f),
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
