@@ -1,9 +1,10 @@
-package com.example.reservationdemo.ui.module.main
+package com.example.reservationdemo.ui.module.home
 
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -33,7 +35,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -44,18 +45,16 @@ import androidx.navigation.compose.rememberNavController
 import com.example.reservationdemo.R
 import com.example.reservationdemo.ui.custom_property.clickableWithScale
 import com.example.reservationdemo.ui.font.VCompassTheme
-import com.example.reservationdemo.ui.module.home.Home
-import com.example.reservationdemo.ui.module.search.Search
 
 
 class MainUserActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewModel: HomeViewModel = HomeViewModel(this)
+        enableEdgeToEdge()
         setContent {
             VCompassTheme {
-                MainScreen(viewModel)
+                MainScreen()
             }
 
         }
@@ -64,9 +63,7 @@ class MainUserActivity : ComponentActivity() {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MainScreen(
-    viewModel: HomeViewModel
-) {
+fun MainScreen() {
     val isShowBottomBar = false
     val navController = rememberNavController()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -74,19 +71,17 @@ fun MainScreen(
     Scaffold(
         bottomBar = {
             if (isShowBottomBar)
-                CustomBottomBar(viewModel, navController, selectedRoute )
+                CustomBottomBar(navController, selectedRoute )
         }
     ) { padding ->
         NavHostGraph(
-            viewModel,
             navController = navController,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier.padding(padding).systemBarsPadding()
         )
     }
 }
 @Composable
 fun CustomBottomBar(
-    viewModel: HomeViewModel,
     navController: NavController = rememberNavController(),
     selectedRoute: String = "home"
 ) {
@@ -151,17 +146,15 @@ data class BottomBarItem(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavHostGraph(
-    viewModel: HomeViewModel,
     navController: NavHostController,
     modifier: Modifier
-)
-{
+) {
     NavHost(navController = navController, startDestination = "home",
         enterTransition = { fadeIn(animationSpec = tween(1000)) },
         exitTransition = { fadeOut(animationSpec = tween(1000)) },
         popEnterTransition = { fadeIn(animationSpec = tween(1000)) },
         popExitTransition = { fadeOut(animationSpec = tween(1000)) }
     ) {
-        composable("home") { Home(viewModel, navController) }
+        composable("home") { HomeScreen() }
     }
 }

@@ -1,13 +1,11 @@
 package com.example.reservationdemo.ui.module.login
 
 import android.content.Intent
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -47,28 +44,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.reservationdemo.R
-import com.example.reservationdemo.helper.getCurrentLocation
+import com.example.reservationdemo.data.api.manager.ApiResult
+import com.example.reservationdemo.data.api.model.LoginResponse
 import com.example.reservationdemo.ui.components.LoadingScreen
 import com.example.reservationdemo.ui.components.RequiredOutlinedTextField
 import com.example.reservationdemo.ui.custom_property.clickableWithScale
-import com.example.reservationdemo.ui.module.main.MainUserActivity
+import com.example.reservationdemo.ui.module.home.MainUserActivity
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun LoginUI(
-    viewModel: LoginViewModel,
     navController: NavController = NavController(LocalContext.current),
 ) {
+    val viewModel: LoginViewModel = koinViewModel()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
     val activity = LocalActivity.current
     val loginResult by viewModel.loginResult.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState(false)
+    var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     var errorMessage by remember { mutableStateOf("") }
@@ -108,19 +106,30 @@ fun LoginUI(
         }
     }
     LaunchedEffect(loginResult) {
-        if (loginResult.user != null  ) {
-            val token = loginResult.access_token ?: ""
-            val userId = loginResult.user?.name ?: ""
-            viewModel.saveLoginInfo(token, userId)
-        } else if (loginResult.status == 400) {
-            Toast.makeText(context, "Wronvg email or password", Toast.LENGTH_SHORT).show()
-            viewModel.clearLogin()
+        when (loginResult) {
+            is ApiResult.Loading -> {
+                isLoading = true
+            }
+            is ApiResult.Success -> {
+                val data = (loginResult as ApiResult.Success<LoginResponse>).data
+                val token = data.token ?: ""
+                val userId = data.user?.id ?: ""
+                viewModel.saveLoginInfo(token, userId)
+                isLoading = false
+            }
+            is ApiResult.Error -> {
+                val error = (loginResult as ApiResult.Error).error
+                Toast.makeText(context, error.message, Toast.LENGTH_SHORT).show()
+                viewModel.clearLogin()
+                isLoading = false
+            }
+            null -> {}
         }
     }
+
     if (isLoading) {
         LoadingScreen()
     }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -196,7 +205,7 @@ fun LoginUI(
                     .clip(RoundedCornerShape(8.dp))
                     .background(colorResource(R.color.primary2))
                     .padding(vertical = 12.dp)
-                    .clickableWithScale() {
+                    .clickableWithScale {
                         if (!validateRegisterFields()) {
                             Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                         }else {

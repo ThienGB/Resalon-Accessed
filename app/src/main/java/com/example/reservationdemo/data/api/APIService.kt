@@ -1,22 +1,17 @@
 package com.example.reservationdemo.data.api
 
-import com.example.reservationdemo.data.api.model.Business
 import com.example.reservationdemo.data.api.model.BusinessResponse
-import com.example.reservationdemo.data.api.model.Category
 import com.example.reservationdemo.data.api.model.CategoryResponse
 import com.example.reservationdemo.data.api.model.FavoriteRequest
 import com.example.reservationdemo.data.api.model.GenericResponse
-import com.example.reservationdemo.data.api.model.Individual
 import com.example.reservationdemo.data.api.model.IndividualResponse
-import com.example.reservationdemo.data.api.model.LoginRequest
 import com.example.reservationdemo.data.api.model.LoginResponse
 import com.example.reservationdemo.data.api.model.RegisterRequest
 import com.example.reservationdemo.data.api.model.RegisterResponse
 import com.example.reservationdemo.data.api.model.SearchResponse
-import com.example.reservationdemo.data.api.model.SearchResultItem
-import com.example.reservationdemo.data.api.model.Service
 import com.example.reservationdemo.data.api.model.ServiceResponse
 import com.example.reservationdemo.data.api.model.ServicesByCityResponse
+import com.example.reservationdemo.data.api.model.UserResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Field
@@ -24,35 +19,30 @@ import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
-    @GET("api/schedule/mobile/{id}")
-    suspend fun getScheduleById(
-        @Path("id") id: String
-    )
     @FormUrlEncoded
     @POST("login")
     suspend fun login(
         @Field("email") email: String,
         @Field("password") password: String
-    ): LoginResponse
+    ): Response<LoginResponse>
 
     @POST("register")
-    suspend fun register(@Body request: RegisterRequest): RegisterResponse
+    suspend fun register(@Body request: RegisterRequest): Response<RegisterResponse>
 
     @GET("business")
-    suspend fun getAllBusiness(): BusinessResponse
+    suspend fun getAllBusiness(): Response<BusinessResponse>
 
     @GET("Individuals")
-    suspend fun getAllIndividuals(): IndividualResponse
+    suspend fun getAllIndividuals(): Response<IndividualResponse>
 
     @GET("categories")
-    suspend fun getAllCategories(): CategoryResponse
+    suspend fun getAllCategories(): Response<CategoryResponse>
 
     @GET("services")
-    suspend fun getAllService(): ServiceResponse
+    suspend fun getAllService(): Response<ServiceResponse>
 
     @GET("services/by-city")
     suspend fun getServicesByCity(
@@ -62,7 +52,7 @@ interface ApiService {
     @GET("user")
     suspend fun getUser(
         @Header("token") token: String
-    ): RegisterResponse
+    ): Response<UserResponse>
 
     @POST("add-favorite")
     suspend fun addFavorite(
@@ -80,6 +70,5 @@ interface ApiService {
     suspend fun search(
         @Query("q") query: String,
         @Query("location") location: String
-    ): SearchResponse
-
+    ): Response<SearchResponse>
 }

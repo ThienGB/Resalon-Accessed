@@ -4,35 +4,38 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import android.content.Context
 import androidx.datastore.preferences.core.edit
+import com.example.reservationdemo.helper.Constant.TOKEN_KEY
+import com.example.reservationdemo.helper.Constant.USER_ID_KEY
+import com.example.reservationdemo.helper.Constant.USER_PREF
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 
-val Context.userDataStore by preferencesDataStore(name = "user_prefs")
+val Context.userDataStore by preferencesDataStore(USER_PREF)
 
 class UserPreferences(private val context: Context) {
 
-    private val TOKEN_KEY = stringPreferencesKey("user_token")
-    private val USER_ID_KEY = stringPreferencesKey("user_id")
+    private val tokenKey = stringPreferencesKey(TOKEN_KEY)
+    private val userIdKey = stringPreferencesKey(USER_ID_KEY)
 
     val userToken: Flow<String?> = context.userDataStore.data
         .map { preferences ->
-            preferences[TOKEN_KEY]
+            preferences[tokenKey]
         }
 
     val userId: Flow<String?> = context.userDataStore.data
         .map { preferences ->
-            preferences[USER_ID_KEY]
+            preferences[userIdKey]
         }
     val password: Flow<String?> = context.userDataStore.data
         .map { preferences ->
-            preferences[USER_ID_KEY]
+            preferences[userIdKey]
         }
 
     suspend fun saveUser(token: String, userId: String) {
         context.userDataStore.edit { preferences ->
-            preferences[TOKEN_KEY] = token
-            preferences[USER_ID_KEY] = userId
+            preferences[tokenKey] = token
+            preferences[userIdKey] = userId
         }
     }
     suspend fun clear() {

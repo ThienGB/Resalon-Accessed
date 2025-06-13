@@ -50,12 +50,10 @@ import com.example.reservationdemo.R
 import com.example.reservationdemo.helper.getCurrentLocation
 import com.example.reservationdemo.ui.components.CustomSearchBar
 import com.example.reservationdemo.ui.custom_property.clickableWithScale
-import com.example.reservationdemo.ui.module.main.HomeViewModel
 import com.google.android.gms.location.LocationServices
 
 @Composable
 fun LocationSearch(
-    viewModel: HomeViewModel,
     onClose: () -> Unit,
     setSearchLocation: (String) -> Unit
 ){

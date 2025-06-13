@@ -1,8 +1,8 @@
 package com.example.reservationdemo.data.api.model
 
 data class FavoriteRequest(
-    val type: String,       // "business" hoặc "individual"
-    val favoriteId: String  // ObjectId MongoDB
+    val type: String,
+    val favoriteId: String
 )
 data class GenericResponse(
     val status: Int,

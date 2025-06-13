@@ -77,6 +77,12 @@ dependencies {
     implementation (libs.play.services.location)
     implementation (libs.androidx.datastore.preferences)
 
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose)
+    implementation(libs.koin.compose.viewmodel)
+    implementation(libs.koin.compose.viewmodel.navigation)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
 
@@ -87,4 +93,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.reflections)
     implementation(libs.logging.interceptor)
+    //// layout
+
+    implementation(libs.material)
+    implementation (libs.androidx.viewpager2)
 }

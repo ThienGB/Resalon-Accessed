@@ -1,12 +1,7 @@
 package com.example.reservationdemo.ui.module.search
 
-import android.content.Intent
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,52 +31,48 @@ import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.reservationdemo.R
-import com.example.reservationdemo.ui.components.CustomSearchBar
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import coil.compose.rememberAsyncImagePainter
+import com.example.reservationdemo.R
+import com.example.reservationdemo.data.api.manager.ApiResult
+import com.example.reservationdemo.data.api.model.SearchResponse
 import com.example.reservationdemo.data.api.model.SearchResultItem
-import com.example.reservationdemo.helper.getCurrentLocation
+import com.example.reservationdemo.ui.components.CustomSearchBar
 import com.example.reservationdemo.ui.custom_property.clickableWithScale
 import com.example.reservationdemo.ui.module.home.CategoryItem
-import com.example.reservationdemo.ui.module.home.Header
-import com.example.reservationdemo.ui.module.main.HomeViewModel
-import com.example.reservationdemo.ui.module.main.MainUserActivity
-import kotlinx.coroutines.delay
+import com.example.reservationdemo.ui.module.home.HomeViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
-@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 @Preview
 @Composable
 fun Search(
-    viewModel: HomeViewModel = HomeViewModel(LocalContext.current),
-    navController: NavController = rememberNavController(),
     setSearchVisible: (Boolean) -> Unit = {},
     isFocused: Boolean = true
 ) {
+    val viewModel: HomeViewModel = koinViewModel()
     val searchLocation by viewModel.searchLocation.collectAsState()
     val searchText by viewModel.searchText.collectAsState()
     val focusRequester = remember { FocusRequester() }
@@ -95,9 +86,11 @@ fun Search(
     fun closeLocationSearch() {
         showLocationSearch = false
     }
+    val result = viewModel.searchResults.collectAsState()
     var isDropdownVisible by remember { mutableStateOf(false) }
-    val isSearchLoading by viewModel.isSearchLoading
-    val searchResults = viewModel.searchResults.collectAsState()
+    val isSearchLoading = result.value is ApiResult.Loading
+    val searchResults = (result.value as? ApiResult.Success<SearchResponse>)?.data?.result
+
     LaunchedEffect(isFocused) {
         if (isFocused)
             focusRequester.requestFocus()
@@ -107,12 +100,11 @@ fun Search(
             viewModel.search(searchText)
         }
     }
-    LaunchedEffect(searchResults.value) {
-        isDropdownVisible = searchResults.value.isNotEmpty()
+    LaunchedEffect(searchResults) {
+        searchResults?.size?.let { isDropdownVisible = it > 0 }
     }
     if (showLocationSearch){
         LocationSearch(
-            viewModel = viewModel,
             onClose = { closeLocationSearch() },
             setSearchLocation = { location ->
             setSearchLocation(location) }
@@ -153,11 +145,11 @@ fun Search(
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 if (isSearchLoading) {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = colorResource(R.color.primary2))
                 }
-                if (isDropdownVisible) {
+                else if (isDropdownVisible) {
                     SearchDropdown(
-                        results = searchResults.value,
+                        results = searchResults!!,
                         onItemSelected = { selected ->
                             // Xử lý chọn item
                             Log.d("Search", "Selected: ${selected.name} (${selected.type})")
@@ -235,7 +227,8 @@ fun Search(
 }
 @Composable
 fun SearchCategory(viewModel: HomeViewModel){
-    val categories by viewModel.categories.collectAsState()
+    val result by viewModel.categories.collectAsState()
+    val categories = (result as? ApiResult.Success)?.data?.data
     Column (modifier = Modifier.padding(horizontal = 20.dp)) {
         Text(text = "Categories", fontSize = 18.sp, fontWeight = FontWeight(600))
         Spacer(modifier = Modifier.height(10.dp))
@@ -247,9 +240,9 @@ fun SearchCategory(viewModel: HomeViewModel){
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(categories.size) {index ->
-                val category = categories.get(index)
-                CategoryItem(category.name.toString(), category.image.toString())
+            items(categories?.size ?: 0) { index ->
+                val category = categories?.get(index)
+                CategoryItem(category?.name.toString(), category?.image.toString())
             }
         }
     }
@@ -290,7 +283,8 @@ fun SearchHistoryItem(
 }
 @Composable
 fun SearchCategorySlider(viewModel: HomeViewModel){
-    val categories by viewModel.categories.collectAsState()
+    val result by viewModel.categories.collectAsState()
+    val categories = (result as? ApiResult.Success)?.data?.data
     Column {
         Text(text = "Categories", fontSize = 18.sp, fontWeight = FontWeight(600),
             modifier = Modifier.padding(horizontal = 20.dp))
@@ -302,13 +296,13 @@ fun SearchCategorySlider(viewModel: HomeViewModel){
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            items(categories.size) {index ->
-                val category = categories[index]
+            items(categories?.size ?: 0) {index ->
+                val category = categories?.get(index)
                 if (index == 0){
                     Spacer(modifier = Modifier.padding(start = 20.dp))
                 }
-                Box() {
-                    Image(painter =  rememberAsyncImagePainter(category.image),
+                Box {
+                    Image(painter =  rememberAsyncImagePainter(category?.image),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -316,12 +310,12 @@ fun SearchCategorySlider(viewModel: HomeViewModel){
                             .width(200.dp)
                             .clip(RoundedCornerShape(6.dp))
                     )
-                    Text(text = category.name.toString(), fontSize = 16.sp, fontWeight = FontWeight(600),
+                    Text(text = category?.name.toString(), fontSize = 16.sp, fontWeight = FontWeight(600),
                         modifier = Modifier
                             .padding(10.dp)
                             .width(90.dp))
                 }
-                if (index == categories.size - 1){
+                if (index == categories?.size?.minus(1)){
                     Spacer(modifier = Modifier.padding(end = 20.dp))
                 }
             }

@@ -27,7 +27,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,7 +55,6 @@ import com.example.reservationdemo.ui.components.RequiredOutlinedTextField
 
 @Composable
 fun Profile(
-    navController: NavController = NavController(LocalContext.current),
 ) {
     Column {
         Box(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.25f),

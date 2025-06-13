@@ -25,7 +25,7 @@ data class ServiceInBussiness(
     val averageRating: Double? = null,
 )
 data class BusinessResponse(
-    val data: List<Business>? = null,
+    val data: List<Business> = emptyList(),
     val message: String? = null,
     val status: Int? = null
 )

@@ -8,6 +8,7 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
+        android:name=".ui.module.main.MainApplication"
         android:icon="@drawable/resalon_logo"
         android:label="@string/app_name"
         android:roundIcon="@drawable/resalon_logo"
@@ -24,7 +25,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.module.main.MainUserActivity"
+            android:name=".ui.module.home.MainUserActivity"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".ui.module.feed.HomeFeedActivity"
             android:exported="true">
         </activity>
     </application>

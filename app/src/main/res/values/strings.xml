@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Resalon</string>
+    <string name="like">Thích</string>
+    <string name="comment">Bình luận</string>
+    <string name="share">Chia sẻ</string>
+    <string name="show_more">Xem thêm</string>
 </resources>

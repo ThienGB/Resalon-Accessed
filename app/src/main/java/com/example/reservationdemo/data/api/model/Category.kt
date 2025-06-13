@@ -5,18 +5,17 @@ import com.google.gson.annotations.SerializedName
 data class Category(
     @SerializedName("_id")
     val id: String? = null,
-
     val name: String? = null,
     val address: String? = null,
     val description: String? = null,
     val image: String? = null,
-    val services: List<Service>? = null,
+    val services: List<Service> = listOf(),
     val createdAt: String? = null,
     val updatedAt: String? = null
 )
 
 data class CategoryResponse(
-    val data: List<Category>? = null,
+    val data: List<Category> = listOf(),
     val message: String? = null,
     val status: Int? = null
 )

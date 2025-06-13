@@ -9,8 +9,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -24,12 +22,10 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -45,10 +41,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerDefaults
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -63,6 +55,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -71,7 +64,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -90,16 +82,16 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.reservationdemo.R
+import com.example.reservationdemo.data.api.manager.ApiResult
+import com.example.reservationdemo.data.api.model.CategoryResponse
 import com.example.reservationdemo.data.api.model.Rating
 import com.example.reservationdemo.helper.getCurrentLocation
+import com.example.reservationdemo.ui.components.LoadingScreen
 import com.example.reservationdemo.ui.custom_property.clickableWithScale
+import com.example.reservationdemo.ui.module.feed.HomeFeedActivity
 import com.example.reservationdemo.ui.module.login.LoginActivity
-import com.example.reservationdemo.ui.module.main.HomeViewModel
-import com.example.reservationdemo.ui.module.main.MainUserActivity
 import com.example.reservationdemo.ui.module.search.LocationSearch
 import com.example.reservationdemo.ui.module.search.Search
 import com.example.reservationdemo.ui.permission.LocationPermissionScreen
@@ -108,14 +100,13 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
 import java.util.Locale
 import kotlin.math.max
 
 @Composable
-fun Home(
-    viewModel: HomeViewModel,
-    navController: NavController = rememberNavController()
-) {
+fun HomeScreen() {
+    val viewModel: HomeViewModel = koinViewModel()
     var isSearchVisible by rememberSaveable { mutableStateOf(false) }
     var showLocationSearch by remember { mutableStateOf(false) }
     var showAllCategories by remember { mutableStateOf(false) }
@@ -145,8 +136,8 @@ fun Home(
         onPermissionGranted = {isPermissionGranted = true},
         onPermissionDenied = {
             Toast.makeText(context, "Resalon cannot access your location", Toast.LENGTH_SHORT).show()
-            viewModel.location.value = viewModel.user.value.address.toString()
-            viewModel.searchLocation.value = viewModel.user.value.address.toString()
+//            viewModel.location.value = viewModel.user.value.
+//            viewModel.searchLocation.value = viewModel.user.value.address.toString()
         }
     )
     LaunchedEffect(Unit) {
@@ -169,35 +160,32 @@ fun Home(
     }
 
     if (isSearchVisible) {
-        Search(viewModel, navController, { status ->
+        Search({ status ->
             setSearchVisible(status) } )
     } else if (showLocationSearch){
         LocationSearch(
-            viewModel,
             onClose = { closeLocationSearch() },
             setSearchLocation = { location ->
                 setLocation(location) }
         )
     } else if (showAllCategories){
-        Search(viewModel, navController, { status ->
+        Search({ status ->
             setCategoryVisible(status) }, false )
     }
     LandingPage(
-        viewModel, navController,
         { status -> setSearchVisible(status) }, { openLocationSearch() },
         { status -> setCategoryVisible(status) },
         { showSidebar() }
     )
     val activity = LocalActivity.current
     val items = listOf(
-        SidebarItem("Profile", R.drawable.ic_profile_color,{}),
-        SidebarItem("LogOut", R.drawable.ic_logout_color,{
+        SidebarItem("Profile", R.drawable.ic_profile_color),
+        SidebarItem("LogOut", R.drawable.ic_logout_color) {
             viewModel.clearToken()
             activity?.startActivity(Intent(activity, LoginActivity::class.java))
-        })
+        }
     )
     RightSideBar(
-        viewModel = viewModel,
         isVisible = showSidebar,
         onDismiss = { showSidebar = false },
         items = items
@@ -206,13 +194,12 @@ fun Home(
 }
 @Composable
 fun LandingPage(
-    viewModel: HomeViewModel,
-    navController: NavController,
     setSearchVisible: (Boolean) -> Unit,
     openLocationSearch: () -> Unit,
-    setCategotyVisible: (Boolean) -> Unit,
+    setCategoryVisible: (Boolean) -> Unit,
     showSidebar: () -> Unit
 ) {
+    val viewModel: HomeViewModel = koinViewModel()
     val searchText by viewModel.searchText.collectAsState()
     val searchLocation by viewModel.searchLocation.collectAsState()
     val scrollState = rememberScrollState()
@@ -224,8 +211,8 @@ fun LandingPage(
     }
     val density = LocalDensity.current
     val offsetPx = with(density) { 50.dp.toPx() }
-    var tabRowY by remember { mutableStateOf(0f) }
-    var tabRowHeight by remember { mutableStateOf(0f) }
+    var tabRowY by remember { mutableFloatStateOf(0f) }
+    var tabRowHeight by remember { mutableFloatStateOf(0f) }
 
     Column(
         modifier = Modifier
@@ -351,11 +338,11 @@ fun LandingPage(
                 }
             }
         }
-        Recommended(viewModel)
+        Recommended()
         Spacer(modifier = Modifier.height(50.dp))
-        PopularServicesInLocation(viewModel,openLocationSearch)
+        PopularServicesInLocation(openLocationSearch)
         Spacer(modifier = Modifier.height(50.dp))
-        Category(viewModel, setCategotyVisible)
+        Category(setCategoryVisible)
         Spacer(modifier = Modifier.height(50.dp))
     }
 }
@@ -412,163 +399,95 @@ fun Header(
 
 @Composable
 fun Category(
-    viewModel: HomeViewModel,
-    setCategotyVisible: (Boolean) -> Unit
+    setCategoryVisible: (Boolean) -> Unit
 ) {
+    val viewModel: HomeViewModel = koinViewModel()
     val categories by viewModel.categories.collectAsState()
-    Column() {
-        Row (verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = "Categories",
-                fontSize = 22.sp,
-                fontWeight = FontWeight(600),
-                modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .weight(1f)
-            )
-            Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickableWithScale{
-                    setCategotyVisible(true)
-                }
-            ){
-                Text(
-                    text = "See all",
-                    fontSize = 16.sp,
-                    color = colorResource(R.color.primary2),
-                    fontWeight = FontWeight(400),
-                )
-                Spacer(modifier = Modifier.width(5.dp))
-                Icon(
-                    painter = painterResource(R.drawable.ic_arrow_right),
-                    contentDescription = null,
-                    tint = colorResource(R.color.primary2),
-                    modifier = Modifier
-                        .padding(top = 2.dp)
-                        .size(15.dp)
-                )
-                Spacer(modifier = Modifier.width(20.dp))
-            }
-        }
-
-        Spacer(modifier = Modifier.height(15.dp))
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier
-                .padding(horizontal = 20.dp)
-                .fillMaxWidth()
-                .heightIn(max = 5000.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            items(categories.take(10).size) {index ->
-                val category = categories.get(index)
-                CategoryItem(category.name.toString(), category.image.toString())
-            }
-        }
-    }
-}
-
-@Composable
-fun CategorySlider(
-    viewModel: HomeViewModel,
-    setCategotyVisible: (Boolean) -> Unit
-) {
-    val categories by viewModel.categories.collectAsState()
-    Column() {
-        Row (verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = "Categories",
-                fontSize = 22.sp,
-                fontWeight = FontWeight(600),
-                modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .weight(1f)
-            )
-            Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickableWithScale{
-                    setCategotyVisible(true)
-                }
-            ){
-                Text(
-                    text = "See all",
-                    fontSize = 16.sp,
-                    color = colorResource(R.color.primary2),
-                    fontWeight = FontWeight(400),
-                )
-                Spacer(modifier = Modifier.width(5.dp))
-                Icon(
-                    painter = painterResource(R.drawable.ic_arrow_right),
-                    contentDescription = null,
-                    tint = colorResource(R.color.primary2),
-                    modifier = Modifier
-                        .padding(top = 2.dp)
-                        .size(15.dp)
-                )
-                Spacer(modifier = Modifier.width(20.dp))
-            }
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-        val chunkedItems = categories.chunked(4)
-        val pagerState = rememberPagerState(pageCount = { chunkedItems.size })
-
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxWidth(),
-            pageSpacing = 20.dp,
-            contentPadding = PaddingValues(horizontal = 20.dp),
-            flingBehavior = PagerDefaults.flingBehavior(
-                state = pagerState,
-                snapAnimationSpec = tween(durationMillis = 200, easing = LinearOutSlowInEasing)
-            ),
-        ) { page ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.clipToBounds()
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    chunkedItems[page].take(2).forEach {item ->
-                        CategoryItem(item.name.toString(), item.image.toString())
+    when (categories) {
+        is ApiResult.Loading -> LoadingScreen()
+        is ApiResult.Error -> Column {}
+        is ApiResult.Success -> {
+            val data = (categories as ApiResult.Success<CategoryResponse>).data.data
+            Column {
+                Row (verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Categories",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight(600),
+                        modifier = Modifier
+                            .padding(horizontal = 20.dp)
+                            .weight(1f)
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickableWithScale{
+                            setCategoryVisible(true)
+                        }
+                    ){
+                        Text(
+                            text = "See all",
+                            fontSize = 16.sp,
+                            color = colorResource(R.color.primary2),
+                            fontWeight = FontWeight(400),
+                        )
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Icon(
+                            painter = painterResource(R.drawable.ic_arrow_right),
+                            contentDescription = null,
+                            tint = colorResource(R.color.primary2),
+                            modifier = Modifier
+                                .padding(top = 2.dp)
+                                .size(15.dp)
+                        )
+                        Spacer(modifier = Modifier.width(20.dp))
                     }
                 }
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+
+                Spacer(modifier = Modifier.height(15.dp))
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .fillMaxWidth()
+                        .heightIn(max = 5000.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    chunkedItems[page].drop(2).take(2).forEach {item ->
-                        CategoryItem(item.name.toString(), item.image.toString())
+                    items(data.take(10).size) { index ->
+                        val category = data[index]
+                        CategoryItem(category.name.toString(), category.image.toString())
                     }
                 }
             }
         }
+
+
     }
+
 }
 
 @Composable
-fun Recommended(
-    viewModel: HomeViewModel
-){
+fun Recommended(){
     Spacer(modifier = Modifier.height(10.dp))
-    PopularSalons(viewModel)
+    PopularSalons()
     Spacer(modifier = Modifier.height(40.dp))
-    PopularStaffs(viewModel)
+    PopularStaffs()
 //    Spacer(modifier = Modifier.height(40.dp))
 //    PopularServices(viewModel)
 }
 
 @Composable
-fun PopularSalons(viewModel: HomeViewModel){
+fun PopularSalons(){
+    val viewModel: HomeViewModel = koinViewModel()
     val businesses by viewModel.businesses.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val isLoading = businesses is ApiResult.Loading
+    val data = (businesses as? ApiResult.Success)?.data?.data ?: emptyList()
+
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-        Text(text = "Popular salons", fontSize = 18.sp, fontWeight = FontWeight(600),)
+        Text(text = "Popular salons", fontSize = 18.sp, fontWeight = FontWeight(600))
     }
     Spacer(modifier = Modifier.height(15.dp))
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp),){
-        items(if (isLoading) 5 else businesses.size, key = { it }){index->
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)){
+        items(if (isLoading) 5 else data.size, key = { it }){index->
             if (isLoading) {
                 if (index == 0) {
                     Spacer(modifier = Modifier.padding(start = 20.dp))
@@ -578,18 +497,18 @@ fun PopularSalons(viewModel: HomeViewModel){
                     Spacer(modifier = Modifier.padding(end = 20.dp))
                 }
             } else {
-                val business = businesses[index]
+                val business = data[index]
                 if (index == 0) {
                     Spacer(modifier = Modifier.padding(start = 20.dp))
                 }
                 RecommendedItem(
-                    viewModel, business.id.toString(), "business",
+                    business.id.toString(), "business",
                     title = business.name.toString(),
                     location = business.description.toString(),
                     image = business.image.toString(),
                     ratings = business.ratings
                 )
-                if (index == businesses.size - 1) {
+                if (index == data.size - 1) {
                     Spacer(modifier = Modifier.padding(end = 20.dp))
                 }
             }
@@ -598,12 +517,14 @@ fun PopularSalons(viewModel: HomeViewModel){
 }
 
 @Composable
-fun PopularStaffs(viewModel: HomeViewModel){
-    val individuals by viewModel.individuals.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+fun PopularStaffs(){
+    val viewModel: HomeViewModel = koinViewModel()
+    val result by viewModel.individuals.collectAsState()
+    val isLoading = result is ApiResult.Loading
+    val individuals = (result as? ApiResult.Success)?.data?.data ?: emptyList()
 
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-        Text(text = "Popular staffs", fontSize = 18.sp, fontWeight = FontWeight(600),)
+        Text(text = "Popular staffs", fontSize = 18.sp, fontWeight = FontWeight(600))
     }
     Spacer(modifier = Modifier.height(10.dp))
     LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)){
@@ -621,7 +542,7 @@ fun PopularStaffs(viewModel: HomeViewModel){
                 val individual = individuals[index]
                 if (index == 0)
                     Spacer(modifier = Modifier.padding(start = 20.dp))
-                RecommendedItem(viewModel, individual.id.toString(), "individual", individual.name,
+                RecommendedItem(individual.id.toString(), "individual", individual.name,
                     individual.description.toString(), individual.image.toString(), individual.ratings)
                 if (index == individuals.size - 1)
                     Spacer(modifier = Modifier.padding(end = 20.dp))
@@ -632,20 +553,19 @@ fun PopularStaffs(viewModel: HomeViewModel){
 
 }
 
-
 @Composable
 fun PopularServicesInLocation(
-    viewModel: HomeViewModel,
     openLocationSearch: () -> Unit
 ){
+    val viewModel: HomeViewModel = koinViewModel()
     val location by viewModel.location.collectAsState()
     LaunchedEffect(location) {
         viewModel.fetchServiceByCity()
     }
-    val servicesByCity by viewModel.servicesByCity.collectAsState()
-    val services = servicesByCity.firstOrNull()?.services ?: emptyList()
+    val result by viewModel.servicesByCity.collectAsState()
+    val services = (result as? ApiResult.Success)?.data?.data?.firstOrNull()?.services ?: emptyList()
     Row(modifier = Modifier.padding(horizontal = 20.dp)) {
-        Text(text = "Popular services in", fontSize = 18.sp, fontWeight = FontWeight(600),)
+        Text(text = "Popular services in", fontSize = 18.sp, fontWeight = FontWeight(600))
         Row(verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End,
             modifier = Modifier
@@ -672,12 +592,12 @@ fun PopularServicesInLocation(
         Text(text = "No services found", fontSize = 18.sp, fontWeight = FontWeight(600),
             color = colorResource(R.color.primary2),
             modifier = Modifier.padding(horizontal = 20.dp))
-    }else
+    } else
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ){
         items(services.size){index ->
-            val service = services.get(index)
+            val service = services[index]
             if (index == 0)
                 Spacer(modifier = Modifier.padding(start = 20.dp))
             ServiceItem(service.serviceTitle, service.serviceImage.toString())
@@ -689,15 +609,16 @@ fun PopularServicesInLocation(
 
 @Composable
 fun RecommendedItem(
-    viewModel: HomeViewModel,
     id: String = "",
     type: String = "",
     title: String = "Optima Beauty Clinic",
-    location: String = "Salon • Ringvagen St, 74 • 6969",
+    location: String = "Salon • Astringent St, 74 • 6969",
     image: String = "https://hoanghamobile.com/tin-tuc/wp-content/uploads/2024/04/anh-ha-noi.jpg",
     ratings: List<Rating> = emptyList(),
 ){
-    val user by viewModel.user.collectAsState()
+    val viewModel: HomeViewModel = koinViewModel()
+    val result by viewModel.user.collectAsState()
+    val user = (result as? ApiResult.Success)?.data?.data
     fun calculateAverageRating(): Double {
         if (ratings.isEmpty()) return 0.0
         val sum = ratings.sumOf { it.rate }
@@ -706,13 +627,14 @@ fun RecommendedItem(
     }
     var favoriteState by remember { mutableStateOf(false) }
     favoriteState = if (type == "individual")
-        user.favorite?.individual?.contains(id) == true
+        user?.favorite?.individual?.contains(id) == true
     else
-        user.favorite?.business?.contains(id) == true
+        user?.favorite?.business?.contains(id) == true
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     var isFavorite by rememberSaveable { mutableStateOf(favoriteState) }
     val scale = remember { Animatable(1f) }
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
     fun onLikeClick() {
         if (!isFavorite) {
             viewModel.addToFavorite(type, id)
@@ -736,6 +658,10 @@ fun RecommendedItem(
         Column(modifier = Modifier
             .width(screenWidth * 0.7f)
             .clip(RoundedCornerShape(8.dp))
+            .clickableWithScale{
+                val intent = Intent(context, HomeFeedActivity::class.java)
+                context.startActivity(intent)
+            }
             .border(width = 0.5.dp, color = Color.LightGray, shape = RoundedCornerShape(8.dp))
         ) {
             Box(
@@ -779,7 +705,7 @@ fun RecommendedItem(
                             scaleX = scale.value,
                             scaleY = scale.value
                         )
-                        .clickable { onLikeClick() }
+                        .clickableWithScale { onLikeClick() }
                 )
                 Column (
                     modifier = Modifier
@@ -911,7 +837,7 @@ fun CategoryItem(
     title: String = "NailCare",
     image: String = ""
 ) {
-    Box() {
+    Box {
         Image(painter =  rememberAsyncImagePainter(image),
             contentDescription = null,
             contentScale = ContentScale.Crop,
@@ -932,7 +858,7 @@ fun ServiceItem(
     title: String = "Women's haircut",
     image: String = ""
 ) {
-    Box() {
+    Box {
         Image(painter =  rememberAsyncImagePainter(image),
             contentDescription = null,
             contentScale = ContentScale.Crop,
@@ -950,12 +876,13 @@ fun ServiceItem(
 
 @Composable
 fun RightSideBar(
-    viewModel: HomeViewModel,
     isVisible: Boolean = true,
     items: List<SidebarItem> = emptyList(),
     onDismiss: () -> Unit = {},
 ) {
-    val user by viewModel.user.collectAsState()
+    val viewModel: HomeViewModel = koinViewModel()
+    val result by viewModel.user.collectAsState()
+    val user = (result as? ApiResult.Success)?.data?.data
     AnimatedVisibility(
         visible = isVisible,
         enter = slideInHorizontally(
@@ -1019,9 +946,9 @@ fun RightSideBar(
                         )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = user.name.toString(), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(text = user?.name.toString(), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = user.email.toString(), fontSize = 16.sp, fontWeight = FontWeight(500), color = Color.Gray)
+                    Text(text = user?.email.toString(), fontSize = 16.sp, fontWeight = FontWeight(500), color = Color.Gray)
                     Spacer(modifier = Modifier.height(16.dp))
                     HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
                     LazyVerticalGrid(
@@ -1034,7 +961,7 @@ fun RightSideBar(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         items(items.size) {index ->
-                            val item = items.get(index)
+                            val item = items[index]
                             Column(modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f)
@@ -1065,14 +992,13 @@ fun RightSideBar(
 data class SidebarItem(
     val label: String,
     val icon: Int,
-    val onClick: () -> Unit
+    val onClick: () -> Unit = {}
 )
 
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun Banner(
-    navController: NavController,
     setSearchVisible: (Boolean) -> Unit,
     scrollState: ScrollState
 ) {
@@ -1081,8 +1007,8 @@ fun Banner(
     }
     val density = LocalDensity.current
     val offsetPx = with(density) { 20.dp.toPx() }
-    var tabRowY by remember { mutableStateOf(0f) }
-    var tabRowHeight by remember { mutableStateOf(0f) }
+    var tabRowY by remember { mutableFloatStateOf(0f) }
+    var tabRowHeight by remember { mutableFloatStateOf(0f) }
 
     Column (modifier = Modifier
         .padding(horizontal = 20.dp)
@@ -1172,22 +1098,4 @@ fun Banner(
             }
         }
     }
-
-}
-@Composable
-fun PopularServices(viewModel: HomeViewModel){
-    val services by viewModel.services.collectAsState()
-    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-        Text(text = "Popular services", fontSize = 18.sp, fontWeight = FontWeight(600),)
-    }
-    Spacer(modifier = Modifier.height(10.dp))
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)){
-        items(services.size){index->
-            val service = services.get(index)
-            if (index == 0)
-                Spacer(modifier = Modifier.padding(start = 20.dp))
-            //RecommendedItem(service.title.toString(), "", service.image.toString())
-        }
-    }
-
 }

@@ -1,10 +1,11 @@
 package com.example.reservationdemo.ui.module.login
 
-import android.content.Context
+import android.app.Application
 import android.util.Base64
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.reservationdemo.data.api.RetrofitClient
+import com.example.reservationdemo.data.api.manager.ApiManager
+import com.example.reservationdemo.data.api.manager.ApiResult
 import com.example.reservationdemo.data.api.model.LoginResponse
 import com.example.reservationdemo.data.api.model.RegisterRequest
 import com.example.reservationdemo.data.api.model.RegisterResponse
@@ -12,27 +13,25 @@ import com.example.reservationdemo.data.local.store.AppPreferences
 import com.example.reservationdemo.data.local.store.UserPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 class LoginViewModel(
-    private val context: Context
+    application: Application,
+    private val apiManager: ApiManager
 ) : ViewModel() {
-    private val _loginResult = MutableStateFlow(LoginResponse())
-    val loginResult: StateFlow<LoginResponse> = _loginResult
+    private val _loginResult = MutableStateFlow<ApiResult<LoginResponse>?>(null)
+    val loginResult: StateFlow<ApiResult<LoginResponse>?> = _loginResult.asStateFlow()
 
-    private val _registerResult = MutableStateFlow(RegisterResponse())
-    val registerResult: StateFlow<RegisterResponse> = _registerResult
+    private val _registerResult = MutableStateFlow<ApiResult<RegisterResponse>>(ApiResult.Loading)
+    val registerResult: StateFlow<ApiResult<RegisterResponse>> = _registerResult.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
-    private val userPrefs = UserPreferences(context)
-    private val appPrefs = AppPreferences(context)
+    private val userPrefs = UserPreferences(application)
+    private val appPrefs = AppPreferences(application)
 
     val isFirst = appPrefs.isFirst
     val userToken = userPrefs.userToken
-    val userId = userPrefs.userId
 
     fun saveLoginInfo(token: String, userId: String) {
         viewModelScope.launch {
@@ -42,7 +41,7 @@ class LoginViewModel(
     fun isTokenExpired(token: String): Boolean {
         try {
             val parts = token.split(".")
-            if (parts.size != 3) return true // không phải JWT
+            if (parts.size != 3) return true
 
             val payload = parts[1]
             val decodedBytes = Base64.decode(payload, Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP)
@@ -67,48 +66,28 @@ class LoginViewModel(
     }
     fun clearRegister() {
         viewModelScope.launch {
-            _registerResult.value = RegisterResponse()
+            _registerResult.value = ApiResult.Loading
         }
     }
     fun clearLogin() {
         viewModelScope.launch {
-            _loginResult.value = LoginResponse()
+            _loginResult.value = null
         }
     }
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val response = RetrofitClient.apiService.login(email, password)
-                _loginResult.value = response
-                appPrefs.saveAppState(false)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                _loginResult.value = LoginResponse(
-                    status = 400,
-                    message = "Wrong email or password"
-                )
-            } finally {
-                _isLoading.value = false
-            }
+            _loginResult.value = ApiResult.Loading
+            val result = apiManager.login(email, password)
+            _loginResult.value = result
         }
     }
 
     fun register(name: String?, email: String, password: String, phone: String?, address: String?) {
         viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val request = RegisterRequest(name, email, password, phone, address)
-                val response = RetrofitClient.apiService.register(request)
-                _registerResult.value = response
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-                _registerResult.value = RegisterResponse()
-            } finally {
-                _isLoading.value = false
-            }
+            _registerResult.value = ApiResult.Loading
+            val result = apiManager.register(RegisterRequest(name, email, password, phone, address))
+            _registerResult.value = result
         }
     }
 

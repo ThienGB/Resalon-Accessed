@@ -1,7 +1,5 @@
 package com.example.reservationdemo.data.api.model
 
-import com.google.gson.annotations.SerializedName
-
 data class SearchResponse(
     val result:  List<SearchResultItem>? = null
 )

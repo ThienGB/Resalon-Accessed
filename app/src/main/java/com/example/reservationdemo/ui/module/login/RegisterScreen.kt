@@ -4,7 +4,6 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,7 +21,6 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -47,21 +45,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.reservationdemo.R
-import com.example.reservationdemo.data.api.model.RegisterResponse
+import com.example.reservationdemo.data.api.manager.ApiResult
 import com.example.reservationdemo.ui.components.LoadingScreen
 import com.example.reservationdemo.ui.components.RequiredOutlinedTextField
 import com.example.reservationdemo.ui.custom_property.clickableWithScale
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun RegisterUI(
-    viewModel: LoginViewModel,
     navController: NavController = NavController(LocalContext.current)
 ) {
+    val viewModel: LoginViewModel = koinViewModel()
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -72,10 +70,10 @@ fun RegisterUI(
     var isConfirmPasswordVisible by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
+    var isLoading by remember { mutableStateOf(false) }
     fun setErrorMessage(message: String) {
         errorMessage = message
     }
-
 
     val context = LocalContext.current
     fun validateRegisterFields(): Boolean {
@@ -83,7 +81,6 @@ fun RegisterUI(
             setErrorMessage("Họ tên không được để trống")
             return false
         }
-
         if (email.isBlank()) {
             setErrorMessage("Email không được để trống")
             return false
@@ -105,36 +102,38 @@ fun RegisterUI(
             setErrorMessage("Mật khẩu xác nhận không khớp")
             return false
         }
-
-        if (phone.isNotBlank() && !phone.matches(Regex("^[0-9]{9,15}\$"))) {
+        if (phone.isNotBlank() && !phone.matches(Regex("^[0-9]{9,15}$"))) {
             setErrorMessage("Số điện thoại không hợp lệ")
             return false
         }
-
         if (address.isBlank()) {
             setErrorMessage("Địa chỉ không được để trống")
             return false
         }
-
         setErrorMessage("")
         return true
     }
 
     val registerState by viewModel.registerResult.collectAsState()
     LaunchedEffect(registerState) {
-        registerState.let { result ->
-            if (result.data != null) {
+        when (registerState) {
+            is ApiResult.Loading -> {
+                isLoading = true
+            }
+            is ApiResult.Success -> {
                 Toast.makeText(context, "Registration successful, please login again. ", Toast.LENGTH_SHORT).show()
                 navController.popBackStack()
-            } else if (result.status == 200) {
-                Toast.makeText(context, "An error occurred, Registration failed.", Toast.LENGTH_SHORT).show()
+                isLoading = false
             }
-            viewModel.clearRegister()
-
+            is ApiResult.Error -> {
+                Toast.makeText(context, "An error occurred, Registration failed.", Toast.LENGTH_SHORT).show()
+                isLoading = false
+            }
         }
+        viewModel.clearRegister()
     }
 
-    val isLoading by viewModel.isLoading.collectAsState(false)
+
     if (isLoading) {
         LoadingScreen()
     }

@@ -9,7 +9,7 @@ data class User(
     val email: String? = null,
     val phone: String? = null,
     val address: String? = null,
-    val avata: String? = null,
+    val avatar: String? = null,
     val createdAt: String? = null,
     val favorite: UserFavorite? = null,
 )
@@ -18,20 +18,21 @@ data class RegisterResponse(
     val status: Int? = null,
     val data: User? = null,
     val message: String? = null,
-    val errcode: Int? = null,
+)
+data class UserResponse(
+    val status: Int? = null,
+    val data: User? = null,
+    val message: String? = null,
 )
 
 data class LoginResponse(
-    val errcode: Int? = null,
-    val access_token: String? = null,
+    @SerializedName("access_token")
+    val token: String? = null,
     val user: User? = null,
     val message: String? = null,
     val status: Int? = null,
 )
-data class LoginRequest(
-    val email: String,
-    val password: String
-)
+
 data class UserFavorite(
     val business: List<String>? = null,
     val individual: List<String>? = null,

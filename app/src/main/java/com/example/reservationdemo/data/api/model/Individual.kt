@@ -6,7 +6,6 @@ import com.google.gson.annotations.SerializedName
 data class Individual(
     @SerializedName("_id")
     val id: String? = null,
-
     val name: String,
     val ratings: List<Rating> = emptyList(),
     val description: String? = null,

@@ -1,5 +1,6 @@
 package com.example.reservationdemo.data.api
 
+import com.example.reservationdemo.helper.Constant.BASE_URL
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -14,7 +15,7 @@ object RetrofitClient {
         .addInterceptor(logging)
         .build()
     private val retrofit = Retrofit.Builder()
-        .baseUrl("https://resalon.onrender.com/v1/booking/")
+        .baseUrl(BASE_URL)
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
      //   .addConverterFactory(GsonConverterFactory.create(gson))

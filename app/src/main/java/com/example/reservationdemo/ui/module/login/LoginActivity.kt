@@ -6,22 +6,21 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.navigation.NavHostController
+import androidx.compose.runtime.getValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.reservationdemo.ui.components.LoadingScreen
-import androidx.compose.runtime.getValue
+import org.koin.compose.viewmodel.koinViewModel
 
 class LoginActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewModel: LoginViewModel = LoginViewModel(this)
         setContent {
             val navController = rememberNavController()
+            val viewModel: LoginViewModel = koinViewModel()
             val isFirst by viewModel.isFirst.collectAsState(null)
             if (isFirst != null){
                 NavHost(navController = navController, startDestination = if (isFirst == true) "on-boarding" else "login",
@@ -32,10 +31,10 @@ class LoginActivity : ComponentActivity() {
                 ) {
                     composable("on-boarding") { OnBoarding(navController) }
                     composable("login") {
-                        LoginUI(viewModel, navController)
+                        LoginUI(navController)
                     }
                     composable("register") {
-                        RegisterUI(viewModel, navController)
+                        RegisterUI(navController)
                     }
                     composable("forget-password")
                     {
