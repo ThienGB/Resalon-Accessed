@@ -10,9 +10,7 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         startKoin {
-            // Reference Android context
             androidContext(this@MainApplication)
-            // Load modules
             modules(myAppModules)
         }
     }

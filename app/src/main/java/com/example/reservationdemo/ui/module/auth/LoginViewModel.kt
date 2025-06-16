@@ -1,7 +1,5 @@
-package com.example.reservationdemo.ui.module.login
+package com.example.reservationdemo.ui.module.auth
 
-import android.app.Application
-import android.util.Base64
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.reservationdemo.data.api.manager.ApiManager
@@ -11,14 +9,15 @@ import com.example.reservationdemo.data.api.model.RegisterRequest
 import com.example.reservationdemo.data.api.model.RegisterResponse
 import com.example.reservationdemo.data.local.store.AppPreferences
 import com.example.reservationdemo.data.local.store.UserPreferences
+import com.example.reservationdemo.helper.AuthUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 
 class LoginViewModel(
-    application: Application,
+    private val userPrefs: UserPreferences,
+    appPrefs: AppPreferences,
     private val apiManager: ApiManager
 ) : ViewModel() {
     private val _loginResult = MutableStateFlow<ApiResult<LoginResponse>?>(null)
@@ -26,9 +25,6 @@ class LoginViewModel(
 
     private val _registerResult = MutableStateFlow<ApiResult<RegisterResponse>>(ApiResult.Loading)
     val registerResult: StateFlow<ApiResult<RegisterResponse>> = _registerResult.asStateFlow()
-
-    private val userPrefs = UserPreferences(application)
-    private val appPrefs = AppPreferences(application)
 
     val isFirst = appPrefs.isFirst
     val userToken = userPrefs.userToken
@@ -39,26 +35,8 @@ class LoginViewModel(
         }
     }
     fun isTokenExpired(token: String): Boolean {
-        try {
-            val parts = token.split(".")
-            if (parts.size != 3) return true
-
-            val payload = parts[1]
-            val decodedBytes = Base64.decode(payload, Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP)
-            val decodedPayload = String(decodedBytes, Charsets.UTF_8)
-
-            val json = JSONObject(decodedPayload)
-            val exp = json.optLong("exp", 0L)
-            if (exp == 0L) return true
-
-            val nowSeconds = System.currentTimeMillis() / 1000
-            return nowSeconds >= exp
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return true
-        }
+        return AuthUtils.isJwtExpired(token)
     }
-
     fun clearToken() {
         viewModelScope.launch {
             userPrefs.clear()

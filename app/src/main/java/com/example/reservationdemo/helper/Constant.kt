@@ -16,4 +16,8 @@ object Constant {
     const val STATUS_PENDING = "PENDING"
     const val STATUS_CONFIRMED = "CONFIRMED"
     const val STATUS_CANCELLED = "CANCELLED"
+
+
+    // Variable
+    const val SEARCH_DEBOUNCE_MS = 400L
 }

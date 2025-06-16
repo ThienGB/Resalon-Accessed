@@ -91,7 +91,7 @@ import com.example.reservationdemo.helper.getCurrentLocation
 import com.example.reservationdemo.ui.components.LoadingScreen
 import com.example.reservationdemo.ui.custom_property.clickableWithScale
 import com.example.reservationdemo.ui.module.feed.HomeFeedActivity
-import com.example.reservationdemo.ui.module.login.LoginActivity
+import com.example.reservationdemo.ui.module.auth.LoginActivity
 import com.example.reservationdemo.ui.module.search.LocationSearch
 import com.example.reservationdemo.ui.module.search.Search
 import com.example.reservationdemo.ui.permission.LocationPermissionScreen

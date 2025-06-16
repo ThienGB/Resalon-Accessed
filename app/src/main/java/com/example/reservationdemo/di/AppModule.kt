@@ -2,9 +2,11 @@ package com.example.reservationdemo.di
 
 import com.example.reservationdemo.data.api.ApiService
 import com.example.reservationdemo.data.api.manager.ApiManager
+import com.example.reservationdemo.data.local.store.AppPreferences
+import com.example.reservationdemo.data.local.store.UserPreferences
 import com.example.reservationdemo.helper.Constant.BASE_URL
 import com.example.reservationdemo.ui.module.home.HomeViewModel
-import com.example.reservationdemo.ui.module.login.LoginViewModel
+import com.example.reservationdemo.ui.module.auth.LoginViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.core.module.dsl.viewModel
@@ -33,7 +35,15 @@ val myAppModules = module {
     single<ApiManager> {
         ApiManager(get())
     }
-    viewModel { LoginViewModel(get(), get()) }
-    viewModel { HomeViewModel(get(), get()) }
-    //viewModelOf(::HomeViewModel)
+
+    single<AppPreferences> {
+        AppPreferences(get())
+    }
+
+    single<UserPreferences> {
+        UserPreferences(get())
+    }
+
+    viewModel { LoginViewModel(get(), get(), get()) }
+    viewModel { HomeViewModel(get(), get(), get()) }
 }

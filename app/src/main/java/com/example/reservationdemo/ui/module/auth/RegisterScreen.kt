@@ -1,4 +1,4 @@
-package com.example.reservationdemo.ui.module.login
+package com.example.reservationdemo.ui.module.auth
 
 import android.widget.Toast
 import androidx.compose.foundation.Image

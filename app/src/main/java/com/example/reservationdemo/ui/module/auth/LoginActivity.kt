@@ -1,4 +1,4 @@
-package com.example.reservationdemo.ui.module.login
+package com.example.reservationdemo.ui.module.auth
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

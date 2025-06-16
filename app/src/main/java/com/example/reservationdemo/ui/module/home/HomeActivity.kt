@@ -1,11 +1,9 @@
 package com.example.reservationdemo.ui.module.home
 
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -32,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -43,12 +40,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.reservationdemo.R
+import com.example.reservationdemo.data.local.app.BottomBarItem
 import com.example.reservationdemo.ui.custom_property.clickableWithScale
 import com.example.reservationdemo.ui.font.VCompassTheme
 
 
 class MainUserActivity : ComponentActivity() {
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -56,12 +53,10 @@ class MainUserActivity : ComponentActivity() {
             VCompassTheme {
                 MainScreen()
             }
-
         }
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen() {
     val isShowBottomBar = false
@@ -74,9 +69,8 @@ fun MainScreen() {
                 CustomBottomBar(navController, selectedRoute )
         }
     ) { padding ->
-        NavHostGraph(
-            navController = navController,
-            modifier = Modifier.padding(padding).systemBarsPadding()
+        Modifier.padding(padding).systemBarsPadding().NavHostGraph(
+            navController = navController
         )
     }
 }
@@ -85,7 +79,7 @@ fun CustomBottomBar(
     navController: NavController = rememberNavController(),
     selectedRoute: String = "home"
 ) {
-    val curentTab by remember {mutableStateOf(selectedRoute)}
+    val currentTab by remember {mutableStateOf(selectedRoute)}
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -100,14 +94,13 @@ fun CustomBottomBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             val items = listOf(
-                BottomBarItem("home", painterResource(id = R.drawable.ic_house_solid), painterResource(id = R.drawable.ic_house), "Trang chủ"),
-                BottomBarItem("search", painterResource(id = R.drawable.ic_search_category_solid), painterResource(id = R.drawable.ic_search_category), "Lịch sử"),
-                BottomBarItem("explore", painterResource(id = R.drawable.ic_compass_solid), painterResource(id = R.drawable.ic_compass), "Khám phá"),
-                BottomBarItem("profile", painterResource(id = R.drawable.ic_profile_shape_solid), painterResource(id = R.drawable.ic_proflie_shape), "Cá nhân")
+                BottomBarItem("home", painterResource(id = R.drawable.ic_house_solid), painterResource(id = R.drawable.ic_house), "Home"),
+                BottomBarItem("search", painterResource(id = R.drawable.ic_search_category_solid), painterResource(id = R.drawable.ic_search_category), "Search"),
+                BottomBarItem("explore", painterResource(id = R.drawable.ic_compass_solid), painterResource(id = R.drawable.ic_compass), "Explore"),
+                BottomBarItem("profile", painterResource(id = R.drawable.ic_profile_shape_solid), painterResource(id = R.drawable.ic_proflie_shape), "Profile")
             )
-
             items.forEach { item ->
-                val isSelected = curentTab == item.route
+                val isSelected = currentTab == item.route
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
@@ -135,20 +128,8 @@ fun CustomBottomBar(
     }
 }
 
-data class BottomBarItem(
-    val route: String,
-    val icon: Painter,
-    val selectedIcon: Painter,
-    val label: String,
-    val type : String = "normal"
-)
-
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NavHostGraph(
-    navController: NavHostController,
-    modifier: Modifier
-) {
+fun Modifier.NavHostGraph(navController: NavHostController) {
     NavHost(navController = navController, startDestination = "home",
         enterTransition = { fadeIn(animationSpec = tween(1000)) },
         exitTransition = { fadeOut(animationSpec = tween(1000)) },

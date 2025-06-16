@@ -16,7 +16,7 @@
         android:theme="@style/Theme.ReservationDemo"
         tools:targetApi="31" >
         <activity
-            android:name=".ui.module.login.LoginActivity"
+            android:name=".ui.module.auth.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
