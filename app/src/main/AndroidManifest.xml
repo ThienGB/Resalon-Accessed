@@ -18,11 +18,7 @@
         <activity
             android:name=".ui.module.auth.LoginActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
         </activity>
         <activity
             android:name=".ui.module.home.MainUserActivity"
@@ -31,6 +27,15 @@
         <activity
             android:name=".ui.module.feed.HomeFeedActivity"
             android:exported="true">
+        </activity>
+        <activity
+            android:name=".ui.module.company.CompanyDetailActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
     </application>
 </manifest>

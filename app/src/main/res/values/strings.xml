@@ -4,4 +4,6 @@
     <string name="comment">Bình luận</string>
     <string name="share">Chia sẻ</string>
     <string name="show_more">Xem thêm</string>
+    <string name="following">Đang theo dõi</string>
+    <string name="rating">Đánh giá</string>
 </resources>

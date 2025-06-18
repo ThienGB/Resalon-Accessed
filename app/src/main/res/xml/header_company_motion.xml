@@ -1,0 +1,96 @@
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        motion:constraintSetStart="@id/start"
+        motion:constraintSetEnd="@id/end"
+        motion:duration="300" >
+    </Transition>
+
+    <ConstraintSet android:id="@+id/start">
+        <Constraint
+            android:id="@id/imgAvatar"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginStart="15dp"
+            android:translationX="0dp"
+            android:translationY="-15dp"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint android:id="@+id/tvCompanyName">
+            <Layout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                motion:layout_constraintStart_toEndOf="@+id/imgAvatar"
+                motion:layout_constraintTop_toTopOf="parent" />
+        </Constraint>
+        <Constraint android:id="@+id/tvNumFollower">
+            <Layout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                motion:layout_constraintStart_toEndOf="@+id/imgAvatar"
+                motion:layout_constraintTop_toBottomOf="@+id/tvCompanyName" />
+        </Constraint>
+        <Constraint
+            android:id="@+id/layoutRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:translationY="-12dp"
+            android:background="@drawable/bg_round99_white"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="6dp"
+            android:gravity="center_vertical"
+            motion:layout_constraintTop_toBottomOf="@+id/imgAvatar"
+            motion:layout_constraintEnd_toEndOf="@+id/imgAvatar"
+            motion:layout_constraintStart_toStartOf="@+id/imgAvatar" />
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+        <Constraint
+            android:id="@id/imgAvatar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="35dp"
+            android:layout_marginStart="25dp"
+            android:translationX="30dp"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint android:id="@+id/tvCompanyName">
+            <Layout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="35dp"
+                android:layout_marginStart="30dp"
+                motion:layout_constraintStart_toEndOf="@+id/imgAvatar"
+                motion:layout_constraintTop_toTopOf="parent" />
+        </Constraint>
+        <Constraint android:id="@+id/tvNumFollower">
+            <Layout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                motion:layout_constraintStart_toEndOf="@+id/imgAvatar"
+                motion:layout_constraintTop_toBottomOf="@+id/tvCompanyName" />
+        </Constraint>
+        <Constraint android:id="@+id/layoutRating">
+            <Layout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_round99_white"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="6dp"
+                android:gravity="center_vertical"
+                motion:layout_constraintTop_toTopOf="parent"
+                motion:layout_constraintEnd_toEndOf="parent"
+                motion:layout_constraintStart_toStartOf="parent"/>
+            <PropertySet
+                android:alpha="0" />
+      </Constraint>
+    </ConstraintSet>
+    <Transition
+        motion:constraintSetStart="@+id/start"
+        motion:constraintSetEnd="@+id/end" />
+</MotionScene>
