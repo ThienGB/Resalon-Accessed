@@ -35,64 +35,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/company_content_top_margin"
             android:background="@color/white">
-
-            <TextView
-                android:id="@+id/tvPostContent"
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPager"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="50dp"
-                android:layout_marginHorizontal="15dp"
-                android:ellipsize="end"
-                android:lineSpacingExtra="10dp"
-                android:text="💥MỘT ĐIỂM DỪNG, TRĂM CƠ HỘI – ACCESSED HẸN BẠN TẠI JOB FAIR UFM 2025! 💥
-Hello các chiến binh tương lai của UFM! 👋 \n \n
-Lần đầu tiên, Accessed Vietnam có mặt tại Job Fair 2025 – Đại học Tài chính – Marketing (UFM).
-Chúng mình háo hức được gặp bạn ngoài đời thật và kể cho bạn nghe về một thế giới việc làm thông minh, kết nối dễ dàng, với hàng trăm job thực tế từ nhiều doanh nghiệp lớn đang chờ bạn apply! \n
-📍 Gian hàng 36 – khuôn viên trường UFM, cơ sở Long Trường \n
-📅 Ngày 14/6/2025\n
-🕘 Thời gian: 7:30 – 12:00
-MỘT ĐIỂM DỪNG, TRĂM CƠ HỘI – ACCESSED HẸN BẠN TẠI JOB FAIR UFM 2025! 💥
-Hello các chiến binh tương lai của UFM! 👋 \n \n
-Lần đầu tiên, Accessed Vietnam có mặt tại Job Fair 2025 – Đại học Tài chính – Marketing (UFM).
-Chúng mình háo hức được gặp bạn ngoài đời thật và kể cho bạn nghe về một thế giới việc làm thông minh, kết nối dễ dàng, với hàng trăm job thực tế từ nhiều doanh nghiệp lớn đang chờ bạn apply! \n
-📍 Gian hàng 36 – khuôn viên trường UFM, cơ sở Long Trường \n
-📅 Ngày 14/6/2025\n
-🕘 Thời gian: 7:30 – 12:00
-MỘT ĐIỂM DỪNG, TRĂM CƠ HỘI – ACCESSED HẸN BẠN TẠI JOB FAIR UFM 2025! 💥
-Hello các chiến binh tương lai của UFM! 👋 \n \n
-Lần đầu tiên, Accessed Vietnam có mặt tại Job Fair 2025 – Đại học Tài chính – Marketing (UFM).
-Chúng mình háo hức được gặp bạn ngoài đời thật và kể cho bạn nghe về một thế giới việc làm thông minh, kết nối dễ dàng, với hàng trăm job thực tế từ nhiều doanh nghiệp lớn đang chờ bạn apply! \n
-📍 Gian hàng 36 – khuôn viên trường UFM, cơ sở Long Trường \n
-📅 Ngày 14/6/2025\n
-🕘 Thời gian: 7:30 – 12:00
-MỘT ĐIỂM DỪNG, TRĂM CƠ HỘI – ACCESSED HẸN BẠN TẠI JOB FAIR UFM 2025! 💥
-Hello các chiến binh tương lai của UFM! 👋 \n \n
-Lần đầu tiên, Accessed Vietnam có mặt tại Job Fair 2025 – Đại học Tài chính – Marketing (UFM).
-Chúng mình háo hức được gặp bạn ngoài đời thật và kể cho bạn nghe về một thế giới việc làm thông minh, kết nối dễ dàng, với hàng trăm job thực tế từ nhiều doanh nghiệp lớn đang chờ bạn apply! \n
-📍 Gian hàng 36 – khuôn viên trường UFM, cơ sở Long Trường \n
-📅 Ngày 14/6/2025\n
-🕘 Thời gian: 7:30 – 12:00📍 Gian hàng 36 – khuôn viên trường UFM, cơ sở Long Trường \n
-📅 Ngày 14/6/2025\n
-🕘 Thời gian: 7:30 – 12:00
-MỘT ĐIỂM DỪNG, TRĂM CƠ HỘI – ACCESSED HẸN BẠN TẠI JOB FAIR UFM 2025! 💥
-Hello các chiến binh tương lai của UFM! 👋 \n \n
-Lần đầu tiên, Accessed Vietnam có mặt tại Job Fair 2025 – Đại học Tài chính – Marketing (UFM).
-Chúng mình háo hức được gặp bạn ngoài đời thật và kể cho bạn nghe về một thế giới việc làm thông minh, kết nối dễ dàng, với hàng trăm job thực tế từ nhiều doanh nghiệp lớn đang chờ bạn apply! \n
-📍 Gian hàng 36 – khuôn viên trường UFM, cơ sở Long Trường \n
-📅 Ngày 14/6/2025\n
-🕘 Thời gian: 7:30 – 12:00
-MỘT ĐIỂM DỪNG, TRĂM CƠ HỘI – ACCESSED HẸN BẠN TẠI JOB FAIR UFM 2025! 💥
-Hello các chiến binh tương lai của UFM! 👋 \n \n
-Lần đầu tiên, Accessed Vietnam có mặt tại Job Fair 2025 – Đại học Tài chính – Marketing (UFM).
-Chúng mình háo hức được gặp bạn ngoài đời thật và kể cho bạn nghe về một thế giới việc làm thông minh, kết nối dễ dàng, với hàng trăm job thực tế từ nhiều doanh nghiệp lớn đang chờ bạn apply! \n
-📍 Gian hàng 36 – khuôn viên trường UFM, cơ sở Long Trường \n
-📅 Ngày 14/6/2025\n
-🕘 Thời gian: 7:30 – 12:00"
-                android:textColor="@color/colorAccent"
-                android:textSize="15sp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="VisualLintLongText" />
+                app:layout_constraintTop_toTopOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -176,90 +125,18 @@ Chúng mình háo hức được gặp bạn ngoài đời thật và kể cho b
                 android:layout_marginStart="2dp" />
         </LinearLayout>
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline"
-            android:layout_width="wrap_content"
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintGuide_percent="0.5"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <LinearLayout
-            android:id="@+id/layoutFollowing"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginVertical="20dp"
-            app:layout_constraintWidth_percent="0.45"
-            android:background="@drawable/bg_round99_trans_boder_blue"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp"
-            android:gravity="center_vertical|center_horizontal"
-            app:layout_constraintTop_toBottomOf="@+id/imgAvatar"
-            app:layout_constraintEnd_toStartOf="@+id/guideline"
-            app:layout_constraintStart_toStartOf="parent">
-            <ImageView
-                android:id="@+id/addIcon"
-                android:layout_width="15dp"
-                android:layout_height="15dp"
-                android:contentDescription="TODO"
-                android:src="@drawable/ic_plus"
-                app:tint="@color/highlight_route" />
-            <TextView
-                android:id="@+id/tvFollowing"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/following"
-                android:textColor="@color/highlight_route"
-                android:textSize="14sp"
-                android:layout_marginStart="8dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/layoutAddRating"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="20dp"
-            app:layout_constraintWidth_percent="0.45"
-            android:background="@drawable/bg_round99_blue"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp"
-            android:gravity="center_vertical|center_horizontal"
+            android:layout_marginTop="10dp"
+            app:tabIndicatorColor="@color/primary"
+            app:tabSelectedTextColor="@color/primary"
+            app:tabTextColor="@color/gray"
             app:layout_constraintTop_toBottomOf="@+id/imgAvatar"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/guideline">
-            <ImageView
-                android:id="@+id/addRatingIcon"
-                android:layout_width="15dp"
-                android:layout_height="15dp"
-                android:src="@drawable/ic_plus"
-                app:tint="@color/white" />
-            <TextView
-                android:id="@+id/tvAddRating"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/rating"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                android:layout_marginStart="8dp" />
-        </LinearLayout>
-        <View
-            android:id="@+id/viewSpace"
-            android:layout_width="match_parent"
-            android:layout_height="15dp"
-            android:background="@color/white"
-            app:layout_constraintTop_toBottomOf="@+id/layoutFollowing" />
-        <View
-            android:id="@+id/view"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:paddingTop="15dp"
-            android:background="#A9A9A9"
-            app:layout_constraintTop_toBottomOf="@+id/viewSpace" />
-
-
+            app:layout_constraintStart_toStartOf="parent"
+            />
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
 

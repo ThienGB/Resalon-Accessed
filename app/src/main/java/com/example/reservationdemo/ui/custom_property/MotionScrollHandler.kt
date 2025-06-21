@@ -29,13 +29,20 @@ class MotionScrollHandler(
     fun setup() {
         scrollView.setOnTouchListener { _, event ->
             when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
+                MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
                     isTouching = true
                     scrollAnimator?.cancel()
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     isTouching = false
                     scrollAnimator?.cancel()
+                    scrollDebounceJob?.cancel()
+                    scrollDebounceJob = lifecycleScope.launch {
+                        delay(delayTime)
+                        if (!isTouching && !isAutoScrolling) {
+                            handleReleaseScroll()
+                        }
+                    }
                 }
             }
             false
@@ -73,7 +80,6 @@ class MotionScrollHandler(
         scrollAnimator?.cancel()
         val fromY = scrollView.scrollY
         isAutoScrolling = true
-
         scrollAnimator = ValueAnimator.ofInt(fromY, toY).apply {
             duration = 1100
             interpolator = DecelerateInterpolator()
